@@ -1,11 +1,14 @@
-#include "gtest/gtest.h"
-#include <chrono>
-#include <memory>
 #include "uitree.h"
 #include "utils.h"
+#include "gtest/gtest.h"
+#include <chrono>
+#include <cstdint>
+#include <memory>
+#include <queue>
+#include <string>
 
 class UiTreeTest : public testing::Test {
-    protected:
+  protected:
     UiTreeTest() {
         m_child1 = std::make_unique<UiElement>("child1");
         m_child2 = std::make_unique<UiElement>("child2");
@@ -21,7 +24,7 @@ class UiTreeTest : public testing::Test {
     std::unique_ptr<UiElement> m_parent;
 };
 
-TEST_F(UiTreeTest, GetAllChildren){
+TEST_F(UiTreeTest, GetAllChildren) {
     m_parent->AddChild(std::move(m_child1));
     m_parent->AddChild(std::move(m_child2));
     m_parent->AddChild(std::move(m_child3));
@@ -33,7 +36,7 @@ TEST_F(UiTreeTest, GetAllChildren){
     EXPECT_EQ(children[2]->GetName(), "child3");
 }
 
-TEST_F(UiTreeTest, GetAllDescendants){
+TEST_F(UiTreeTest, GetAllDescendants) {
     auto child12 = std::make_unique<UiElement>("child12");
     auto child13 = std::make_unique<UiElement>("child13");
     auto child14 = std::make_unique<UiElement>("child14");
@@ -59,9 +62,9 @@ TEST_F(UiTreeTest, GetAllDescendants){
 
     // check if all are unique
     uint16_t numberOfSameElements = 0;
-    for(const auto& elem: allElements){
-        for(const auto& other: allElements){
-            if(elem == other){
+    for (const auto& elem : allElements) {
+        for (const auto& other : allElements) {
+            if (elem == other) {
                 numberOfSameElements++;
                 continue;
             }
@@ -74,36 +77,36 @@ TEST_F(UiTreeTest, GetAllDescendants){
     EXPECT_EQ(allElements.size(), 9);
 }
 
-TEST_F(UiTreeTest, GetAllDescendantsRandomized){
+TEST_F(UiTreeTest, GetAllDescendantsRandomized) {
     uint16_t total = 1;
 
     auto currentChildren = std::vector<UiElement*>{m_parent.get()};
 
-    while(total < MAX_ALL_CHILDREN - 101){
+    while (total < MAX_ALL_CHILDREN - 101) {
         auto randomNum = generateRandomNum(1, 10);
         auto nextLevelChildren = std::vector<UiElement*>{};
 
         bool full = false;
 
-        for(auto& child: currentChildren){
-            for(int i = 0; i < randomNum; i++){
+        for (auto& child : currentChildren) {
+            for (int i = 0; i < randomNum; i++) {
                 auto newChild = std::make_unique<UiElement>("child");
                 nextLevelChildren.push_back(newChild.get());
                 child->AddChild(std::move(newChild));
                 total++;
 
-                if(total >= MAX_ALL_CHILDREN - 101){
+                if (total >= MAX_ALL_CHILDREN - 101) {
                     full = true;
                     break;
                 }
             }
 
-            if(full) break;
+            if (full)
+                break;
         }
 
-        bla bla
-
-        if(full) break;
+        if (full)
+            break;
 
         currentChildren = nextLevelChildren;
     }
@@ -116,6 +119,116 @@ TEST_F(UiTreeTest, GetAllDescendantsRandomized){
     auto t2 = std::chrono::high_resolution_clock::now();
 
     auto totalDuration = std::chrono::duration<double>(t2 - t1);
-    std::cout << std::format("Time taken ui tree traversal: {}",std::chrono::duration_cast<std::chrono::microseconds>(totalDuration)) << std::endl;
+    std::cout << std::format("Time taken ui tree traversal: {}",
+                             std::chrono::duration_cast<std::chrono::microseconds>(totalDuration))
+              << std::endl;
+    EXPECT_EQ(allDescendants.size(), total);
+}
+
+TEST_F(UiTreeTest, GetAllDescendantsBreathFirst) {
+    auto child12 = std::make_unique<UiElement>("child12");
+    auto child13 = std::make_unique<UiElement>("child13");
+    auto child14 = std::make_unique<UiElement>("child14");
+    m_child1->AddChild(std::move(child12));
+    m_child1->AddChild(std::move(child13));
+    m_child1->AddChild(std::move(child14));
+
+    auto child31 = std::make_unique<UiElement>("child31");
+    auto child32 = std::make_unique<UiElement>("child32");
+    m_child3->AddChild(std::move(child31));
+    m_child3->AddChild(std::move(child32));
+
+    m_parent->AddChild(std::move(m_child1));
+    m_parent->AddChild(std::move(m_child2));
+    m_parent->AddChild(std::move(m_child3));
+
+    auto stackBuffer = std::vector<UiElement*>{};
+    stackBuffer.reserve(MAX_ALL_CHILDREN);
+
+    ASSERT_EQ(stackBuffer.capacity(), MAX_ALL_CHILDREN);
+
+    auto allElements = m_parent->GetAllDescendants(stackBuffer);
+
+    // check if all are unique
+    uint16_t numberOfSameElements = 0;
+    for (const auto& elem : allElements) {
+        for (const auto& other : allElements) {
+            if (elem == other) {
+                numberOfSameElements++;
+                continue;
+            }
+
+            EXPECT_NE(elem->GetName(), other->GetName());
+        }
+    }
+
+    EXPECT_EQ(numberOfSameElements, 9);
+    EXPECT_EQ(allElements.size(), 9);
+
+    // check the order
+    uint16_t i = 0;
+    std::vector<int> childrenNumbers{};
+    for (const auto& elem : allElements) {
+        int dNum = elem->GetName()[5] - '0';
+        int jNum = elem->GetName()[6] - '0';
+        std::cout << std::format("Got chars {} {}", elem->GetName()[5], elem->GetName()[6])
+                  << std::endl;
+        auto childNum = dNum * 10 + jNum;
+
+        childrenNumbers.push_back(childNum);
+        i++;
+    }
+
+    for (const auto& elem : childrenNumbers) {
+        std::cout << elem << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+TEST_F(UiTreeTest, GetAllDescendantsBreathFirstRandomized) {
+    uint16_t total = 1;
+
+    auto currentChildren = std::vector<UiElement*>{m_parent.get()};
+
+    while (total < MAX_ALL_CHILDREN - 101) {
+        auto randomNum = generateRandomNum(1, 10);
+        auto nextLevelChildren = std::vector<UiElement*>{};
+
+        bool full = false;
+
+        for (auto& child : currentChildren) {
+            for (int i = 0; i < randomNum; i++) {
+                auto newChild = std::make_unique<UiElement>("child");
+                nextLevelChildren.push_back(newChild.get());
+                child->AddChild(std::move(newChild));
+                total++;
+
+                if (total >= MAX_ALL_CHILDREN - 101) {
+                    full = true;
+                    break;
+                }
+            }
+
+            if (full)
+                break;
+        }
+
+        if (full)
+            break;
+
+        currentChildren = nextLevelChildren;
+    }
+
+    auto traverseBuffer = std::queue<UiElement*>{};
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    auto allDescendants = m_parent->GetAllDescendantsBreathFirst(traverseBuffer);
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    auto totalDuration = std::chrono::duration<double>(t2 - t1);
+    std::cout << std::format("Time taken ui tree traversal: {}",
+                             std::chrono::duration_cast<std::chrono::microseconds>(totalDuration))
+              << std::endl;
     EXPECT_EQ(allDescendants.size(), total);
 }
