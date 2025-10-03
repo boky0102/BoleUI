@@ -1,0 +1,2 @@
+ADD_LIBRARY(uilib uitree.cpp)
+TARGET_INCLUDE_DIRECTORIES(uilib PUBLIC include)
