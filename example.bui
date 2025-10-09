@@ -1,0 +1,18 @@
+// all elements must have a root, and only one root is possible
+// add ability to import elements from other files
+Element:
+    width: max
+    height: max
+    layout: vertical // can be vertical / horizontal
+    border: 1px color // border is taken from size not added
+    bg-color: color
+
+   // needs to be 100 in total if parent has layout
+    Element:
+        width: 30
+    Element:
+        width: 40
+    Element:
+        width: 30
+
+        element:

@@ -1,7 +1,8 @@
 #pragma once
 #include <random>
 
-inline int generateRandomNum(int min, int max){
+inline int generateRandomNum(int min, int max)
+{
     std::random_device rd;
     std::mt19937 gen(rd());
 

@@ -34,10 +34,10 @@ class UiElement {
         -> std::vector<UiElement*>;
 
     // Returns true if element has a child with a name
-    bool HasChild(const std::string name) const;
+    bool HasChild(std::vector<UiElement*>& traversalBuffer, const std::string name);
 
     // Get child with specific name
-    auto GetChild(const std::string name) const -> UiElement&;
+    auto GetChild(std::vector<UiElement*>& traversalBuffer, const std::string name) -> UiElement*;
 
   private:
     std::vector<std::unique_ptr<UiElement>> m_children;
