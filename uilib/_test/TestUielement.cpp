@@ -1,4 +1,5 @@
-#include "uitree.h"
+#include "types.h"
+#include "uielement.h"
 #include "utils.h"
 #include "gtest/gtest.h"
 #include <chrono>
@@ -11,37 +12,40 @@ class UiTreeTest : public testing::Test {
   protected:
     UiTreeTest()
     {
-        m_child1 = std::make_unique<UiElement>("child-1");
-        m_child2 = std::make_unique<UiElement>("child-2");
-        m_child3 = std::make_unique<UiElement>("child-3");
-
-        m_parent = std::make_unique<UiElement>("parent");
-
+        m_parent = std::make_unique<UiElement>("parent", ElemType::Box);
         m_traversalBuffer.reserve(MAX_ALL_CHILDREN);
     }
 
     void BasicUiTreeSetup()
     {
-        auto child12 = std::make_unique<UiElement>("child-12");
-        auto child13 = std::make_unique<UiElement>("child-13");
-        auto child14 = std::make_unique<UiElement>("child-14");
+        auto child1 = std::make_unique<UiElement>("child-1", ElemType::Box);
+        auto child2 = std::make_unique<UiElement>("child-2", ElemType::Box);
+        auto child3 = std::make_unique<UiElement>("child-3", ElemType::Box);
+
+        m_child1 = child1.get();
+        m_child2 = child2.get();
+        m_child3 = child3.get();
+
+        m_parent->AddChild(std::move(child1));
+        m_parent->AddChild(std::move(child2));
+        m_parent->AddChild(std::move(child3));
+
+        auto child12 = std::make_unique<UiElement>("child-12", ElemType::Box);
+        auto child13 = std::make_unique<UiElement>("child-13", ElemType::Box);
+        auto child14 = std::make_unique<UiElement>("child-14", ElemType::Box);
         m_child1->AddChild(std::move(child12));
         m_child1->AddChild(std::move(child13));
         m_child1->AddChild(std::move(child14));
 
-        auto child31 = std::make_unique<UiElement>("child-31");
-        auto child32 = std::make_unique<UiElement>("child-32");
+        auto child31 = std::make_unique<UiElement>("child-31", ElemType::Box);
+        auto child32 = std::make_unique<UiElement>("child-32", ElemType::Box);
         m_child3->AddChild(std::move(child31));
         m_child3->AddChild(std::move(child32));
-
-        m_parent->AddChild(std::move(m_child1));
-        m_parent->AddChild(std::move(m_child2));
-        m_parent->AddChild(std::move(m_child3));
     }
 
-    std::unique_ptr<UiElement> m_child1;
-    std::unique_ptr<UiElement> m_child2;
-    std::unique_ptr<UiElement> m_child3;
+    UiElement* m_child1;
+    UiElement* m_child2;
+    UiElement* m_child3;
 
     std::unique_ptr<UiElement> m_parent;
     std::vector<UiElement*> m_traversalBuffer;
@@ -49,9 +53,7 @@ class UiTreeTest : public testing::Test {
 
 TEST_F(UiTreeTest, GetAllChildren)
 {
-    m_parent->AddChild(std::move(m_child1));
-    m_parent->AddChild(std::move(m_child2));
-    m_parent->AddChild(std::move(m_child3));
+    BasicUiTreeSetup();
 
     auto children = m_parent->GetAllChildren();
     EXPECT_EQ(children.size(), size_t(3));
@@ -102,7 +104,7 @@ TEST_F(UiTreeTest, GetAllDescendantsRandomized)
 
         for (auto& child : currentChildren) {
             for (int i = 0; i < randomNum; i++) {
-                auto newChild = std::make_unique<UiElement>("child");
+                auto newChild = std::make_unique<UiElement>("child", ElemType::Box);
                 nextLevelChildren.push_back(newChild.get());
                 child->AddChild(std::move(newChild));
                 total++;
@@ -203,7 +205,7 @@ TEST_F(UiTreeTest, GetAllDescendantsBreathFirstRandomized)
 
         for (auto& child : currentChildren) {
             for (int i = 0; i < randomNum; i++) {
-                auto newChild = std::make_unique<UiElement>("child");
+                auto newChild = std::make_unique<UiElement>("child", ElemType::Box);
                 nextLevelChildren.push_back(newChild.get());
                 child->AddChild(std::move(newChild));
                 total++;
@@ -255,10 +257,10 @@ TEST_F(UiTreeTest, TestSucessiveTraverse_NoInteference)
     auto elementsTree1 = m_parent->GetAllDescendants(traverseBuffer);
     EXPECT_EQ(elementsTree1.size(), size_t(9));
 
-    auto secondRoot = std::make_unique<UiElement>("parent2");
-    auto secondChild1 = std::make_unique<UiElement>("schild-2");
-    auto secondChild2 = std::make_unique<UiElement>("schild-3");
-    auto secondChild3 = std::make_unique<UiElement>("schild-4");
+    auto secondRoot = std::make_unique<UiElement>("parent2", ElemType::Box);
+    auto secondChild1 = std::make_unique<UiElement>("schild-2", ElemType::Box);
+    auto secondChild2 = std::make_unique<UiElement>("schild-3", ElemType::Box);
+    auto secondChild3 = std::make_unique<UiElement>("schild-4", ElemType::Box);
 
     secondRoot->AddChild(std::move(secondChild1));
     secondRoot->AddChild(std::move(secondChild2));
@@ -279,4 +281,31 @@ TEST_F(UiTreeTest, TestGetChild)
     EXPECT_EQ(m_parent->GetChild(traverseBuffer, "child-12")->GetName(), "child-12");
     EXPECT_NE(m_parent->GetChild(traverseBuffer, "child-31"), nullptr);
     EXPECT_EQ(m_parent->GetChild(traverseBuffer, "child-31")->GetName(), "child-31");
+}
+
+TEST_F(UiTreeTest, TestGetParent)
+{
+    BasicUiTreeSetup();
+
+    auto traverseBuffer = std::vector<UiElement*>{};
+    traverseBuffer.reserve(MAX_ALL_CHILDREN);
+
+    EXPECT_EQ(m_parent->GetParent(traverseBuffer, m_parent.get()), nullptr);
+    EXPECT_NE(m_child1->GetParent(traverseBuffer, m_parent.get()), nullptr);
+
+    EXPECT_EQ(m_child1->GetParent(traverseBuffer, m_parent.get()), m_parent.get());
+    EXPECT_EQ(m_child3->GetParent(traverseBuffer, m_parent.get()), m_parent.get());
+
+    auto child31 = m_parent->GetChild(traverseBuffer, "child-31");
+    EXPECT_NE(child31, nullptr);
+    EXPECT_EQ(child31->GetParent(traverseBuffer, m_parent.get()), m_child3);
+}
+
+TEST_F(UiTreeTest, TestRemoveImmediateChildren)
+{
+    BasicUiTreeSetup();
+    m_parent->RemoveImmediateChildren();
+
+    const auto& children = m_parent->GetAllChildren();
+    EXPECT_EQ(children.size(), size_t(0));
 }

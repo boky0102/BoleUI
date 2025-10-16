@@ -1,7 +1,8 @@
-#include "stdafx.h"
 #include "SFML/Graphics.hpp"
+#include "stdafx.h"
 
-int main(){
+int main()
+{
     assert(__cplusplus == 202302);
     {
         auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
@@ -9,12 +10,9 @@ int main(){
 
         auto rec = sf::RectangleShape({200, 100});
 
-        while (window.isOpen())
-        {
-            while (const std::optional event = window.pollEvent())
-            {
-                if (event->is<sf::Event::Closed>())
-                {
+        while (window.isOpen()) {
+            while (const std::optional event = window.pollEvent()) {
+                if (event->is<sf::Event::Closed>()) {
                     window.close();
                 }
             }
@@ -24,7 +22,6 @@ int main(){
             window.draw(rec);
 
             window.display();
-
         };
 
         return 0;

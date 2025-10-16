@@ -5,6 +5,7 @@ Element:
     height: max
     layout: vertical // can be vertical / horizontal
     border: 1px color // border is taken from size not added
+    visible: true
     bg-color: color
 
    // needs to be 100 in total if parent has layout

@@ -33,11 +33,3 @@ ADD_SUBDIRECTORY(uilib)
 ADD_EXECUTABLE(main main.cpp)
 TARGET_INCLUDE_DIRECTORIES(main PUBLIC include)
 TARGET_LINK_LIBRARIES(main PRIVATE SFML::Graphics uilib)
-
-
-# TEST #
-ADD_EXECUTABLE(TestUITree test/TestUitree.cpp)
-TARGET_LINK_LIBRARIES(TestUITree GTest::gtest_main uilib)
-
-include(GoogleTest)
-gtest_discover_tests(TestUITree)
