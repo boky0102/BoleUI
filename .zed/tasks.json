@@ -1,0 +1,27 @@
+[
+  {
+    "label": "BUILD",
+    "command": "cmake --build $ZED_WORKTREE_ROOT/build-debug",
+    "hide": "on_success"
+  },
+  {
+    "label": "BUILD_RELEASE",
+    "command": "cmake --build $ZED_WORKTREE_ROOT/build",
+    "hide": "on_success"
+  },
+  {
+    "label": "RUN",
+    "command": "cmake --build $ZED_WORKTREE_ROOT/build && $ZED_WORKTREE_ROOT/build/main",
+    "reveal": "never",
+    "hide": "always"
+  },
+  {
+    "label": "RUN_SINGLE_TEST",
+    "command": "cd $ZED_WORKTREE_ROOT/build-debug && ctest -VV -R $ZED_SELECTED_TEXT"
+  },
+  {
+    "label": "RUN_CURSOR_TEST",
+    "command": "cd $ZED_WORKTREE_ROOT/build-debug && ctest -VV -R \"$(deno run --allow-read /home/bole/dev/scripts/testname/main.ts $ZED_FILE $ZED_ROW)\"",
+    "hide": "never"
+  }
+]

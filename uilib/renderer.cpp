@@ -32,6 +32,8 @@ auto Renderer::GetDrawables(UiElement* root) -> std::vector<std::pair<std::strin
         }
     }
 
+    assert(newRenderTree.size() != 0);
+
     m_drawables = newRenderTree;
     return newRenderTree;
 }

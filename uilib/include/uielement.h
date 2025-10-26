@@ -10,8 +10,6 @@
 constexpr size_t MAX_CHILDREN = 100;
 constexpr size_t MAX_ALL_CHILDREN = 10000;
 
-class UiTree {};
-
 // TO ADD: background color,  border, etc ...
 class UiElement {
   public:

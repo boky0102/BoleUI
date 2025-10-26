@@ -1,6 +1,6 @@
 #include "uitree.h"
 
-void UiTree::RemoveChild(const std::string& elementName) {}
+void UiTree::RemoveChild(const std::string& elementName, bool added) {}
 
 auto UiTree::GetChildren(const std::string& elementName) const -> std::vector<UiElement*> {}
 
