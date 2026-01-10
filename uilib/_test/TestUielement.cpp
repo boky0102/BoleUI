@@ -290,15 +290,15 @@ TEST_F(UiTreeTest, TestGetParent)
     auto traverseBuffer = std::vector<UiElement*>{};
     traverseBuffer.reserve(MAX_ALL_CHILDREN);
 
-    EXPECT_EQ(m_parent->GetParent(traverseBuffer, m_parent.get()), nullptr);
-    EXPECT_NE(m_child1->GetParent(traverseBuffer, m_parent.get()), nullptr);
+    EXPECT_EQ(m_parent->GetParent(), nullptr);
+    EXPECT_NE(m_child1->GetParent(), nullptr);
 
-    EXPECT_EQ(m_child1->GetParent(traverseBuffer, m_parent.get()), m_parent.get());
-    EXPECT_EQ(m_child3->GetParent(traverseBuffer, m_parent.get()), m_parent.get());
+    EXPECT_EQ(m_child1->GetParent(), m_parent.get());
+    EXPECT_EQ(m_child3->GetParent(), m_parent.get());
 
     auto child31 = m_parent->GetChild(traverseBuffer, "child-31");
     EXPECT_NE(child31, nullptr);
-    EXPECT_EQ(child31->GetParent(traverseBuffer, m_parent.get()), m_child3);
+    EXPECT_EQ(child31->GetParent(), m_child3);
 }
 
 TEST_F(UiTreeTest, TestRemoveImmediateChildren)

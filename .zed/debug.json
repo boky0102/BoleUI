@@ -1,12 +1,22 @@
 [
   {
-    "label": "Debug native binary",
-    "build": {
-      "command": "cmake",
-      "args": ["-S . -B build-debug -DCMAKE_BUILD_TYPE=Debug"],
-      "cwd": "$ZED_WORKTREE_ROOT"
-    },
-    "program": "$ZED_WORKTREE_ROOT/build-debug/uilib/TestUITree",
+    "label": "Debug MAIN",
+    "build": "BUILD",
+    "program": "/home/bole/dev/bunq_front_low/build-debug/main",
+    "request": "launch",
+    "adapter": "CodeLLDB"
+  },
+  {
+    "label": "Debug test TestHoirzontalLayout_AddChild",
+    "build": "BUILD",
+    "program": "/home/bole/dev/bunq_front_low/build-debug/uilib/TestUITree",
+    "request": "launch",
+    "adapter": "CodeLLDB"
+  },
+  {
+    "label": "Debug Grid",
+    "build": "BUILD",
+    "program": "/home/bole/dev/bunq_front_low/build-debug/testing-grid/gridrunner",
     "request": "launch",
     "adapter": "CodeLLDB"
   }

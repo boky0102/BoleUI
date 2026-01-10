@@ -2,7 +2,9 @@
 #include "format"
 #include "types.h"
 #include <cassert>
+#include <iostream>
 #include <memory>
+#include <print>
 #include <queue>
 #include <ranges>
 #include <stdexcept>
@@ -10,18 +12,25 @@
 
 UiElement::UiElement(std::string name, ElemType elementType)
     : m_name(name)
-    , m_elemetType(elementType)
+    , m_elementType(elementType)
+    , m_parent(nullptr)
 {
     m_children.reserve(MAX_CHILDREN);
 };
 
 auto UiElement::GetName() const -> const std::string& { return m_name; }
 
+void UiElement::SetParent(UiElement* parent) { m_parent = parent; }
+
+auto UiElement::GetParent() -> UiElement* { return m_parent; }
+
 void UiElement::AddChild(std::unique_ptr<UiElement> child)
 {
     assert(m_children.size() <= MAX_CHILDREN);
-
+    child->SetParent(this);
     m_children.emplace_back(std::move(child));
+
+    RearrangeChildren();
 }
 
 auto UiElement::GetAllChildren() const -> std::vector<UiElement*>
@@ -71,9 +80,8 @@ auto UiElement::GetAllDescendants(std::vector<UiElement*>& traversalBuffer)
 auto UiElement::GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBuffer)
     -> std::vector<UiElement*>
 {
-
     if (m_children.size() == size_t(0)) {
-        return std::vector<UiElement*>{};
+        return std::vector<UiElement*>{this};
     }
 
     traversalBuffer.push(this);
@@ -154,55 +162,51 @@ auto UiElement::GetChild(std::vector<UiElement*>& traversalBuffer, const std::st
     return nullptr;
 }
 
-auto UiElement::GetParent(std::vector<UiElement*>& traversalBuffer, UiElement* root) -> UiElement*
-{
-    if (traversalBuffer.size() > MAX_ALL_CHILDREN ||
-        traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
-        throw std::runtime_error(
-            std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
-                        MAX_ALL_CHILDREN, traversalBuffer.capacity()));
-    }
+bool UiElement::IsText() { return m_elementType == ElemType::Text; }
 
-    traversalBuffer.clear();
-    traversalBuffer.push_back(root);
+auto UiElement::GetElementType() -> ElemType { return m_elementType; }
 
-    while (!traversalBuffer.empty()) {
-        auto elem = traversalBuffer.back();
-        traversalBuffer.pop_back();
-
-        for (const auto& child : elem->GetAllChildren()) {
-            if (child->GetName() == m_name) {
-                return elem;
-            }
-
-            traversalBuffer.push_back(child);
-        }
-    }
-
-    return nullptr;
-}
-
-bool UiElement::IsText() { return m_elemetType == ElemType::Text; }
-
-auto UiElement::GetElementType() -> ElemType { return m_elemetType; }
-
-void UiElement::RemoveChild(std::vector<UiElement*>& traversalBuffer, const std::string& childName)
+bool UiElement::RemoveChild(std::vector<UiElement*>& traversalBuffer, const std::string& childName)
 {
     if (m_children.size() == size_t(0)) {
-        return;
+        return false;
     }
 
-    if (traversalBuffer.size() > MAX_ALL_CHILDREN ||
-        traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
-        throw std::runtime_error(
-            std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
-                        MAX_ALL_CHILDREN, traversalBuffer.capacity()));
-    }
+    auto element = GetChild(traversalBuffer, childName);
+    auto parent = element->GetParent();
 
-    assert(traversalBuffer.capacity() == MAX_ALL_CHILDREN);
-    traversalBuffer.clear();
+    return parent->RemoveImmediateChild(childName);
+}
 
-    auto child = GetChild(traversalBuffer, childName);
+bool UiElement::RemoveImmediateChild(const std::string& childName)
+{
+    return std::erase_if(m_children, [childName](std::unique_ptr<UiElement>& child) {
+        return child->GetName() == childName;
+    });
 }
 
 void UiElement::RemoveImmediateChildren() { m_children.clear(); }
+
+void UiElement::RearrangeChildren()
+{
+    if (properties.layout_children == LayoutDirection::Horizontal) {
+        const auto parentPosition = properties.position;
+        const auto nChildren = m_children.size();
+        const auto totalSpace = properties.width;
+        const auto childSpace = totalSpace / nChildren;
+
+        int i = 0;
+        for (const auto& child : m_children) {
+            child->properties.width = childSpace;
+
+            const auto childPosX = parentPosition.x + i * childSpace;
+            child->properties.position = {childPosX, parentPosition.y};
+
+            std::println("width : {} pos : {}", child->properties.width, childPosX);
+
+            i++;
+        }
+
+        std::cout << "===================== " << std::endl;
+    }
+}

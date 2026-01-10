@@ -1,4 +1,5 @@
 #pragma once
+
 #include <random>
 
 inline int generateRandomNum(int min, int max)

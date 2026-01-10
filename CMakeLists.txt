@@ -30,6 +30,9 @@ FetchContent_MakeAvailable(googletest)
 # UI LIB #
 ADD_SUBDIRECTORY(uilib)
 
+# GRID LIB #
+ADD_SUBDIRECTORY(testing-grid)
+
 
 # MAIN #
 ADD_EXECUTABLE(main main.cpp)

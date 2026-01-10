@@ -9,4 +9,5 @@ PointerAlignment: Left
 ColumnLimit: 100
 BreakBeforeBraces: Stroustrup
 BreakConstructorInitializers: BeforeComma
+AllowShortFunctionsOnASingleLine: Empty
 ---

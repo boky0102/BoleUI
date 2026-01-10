@@ -21,7 +21,11 @@
   },
   {
     "label": "RUN_CURSOR_TEST",
-    "command": "cd $ZED_WORKTREE_ROOT/build-debug && ctest -VV -R \"$(deno run --allow-read /home/bole/dev/scripts/testname/main.ts $ZED_FILE $ZED_ROW)\"",
+    "command": "cmake --build $ZED_WORKTREE_ROOT/build-debug && cd $ZED_WORKTREE_ROOT/build-debug && ctest -VV -R \"$(deno run --allow-read /home/bole/dev/scripts/testname/main.ts $ZED_FILE $ZED_ROW)\"",
     "hide": "never"
+  },
+  {
+    "label": "GENERATE_DEBUG_TEST_TASK",
+    "command": "$ZED_WORKTREE_ROOT/generate_test_debugger.fish $ZED_WORKTREE_ROOT $ZED_FILE $ZED_ROW"
   }
 ]
