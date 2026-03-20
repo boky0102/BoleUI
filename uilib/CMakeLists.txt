@@ -3,6 +3,9 @@ ADD_LIBRARY(uilib
     uitree.cpp
     renderer.cpp
     rect.cpp
+    plot_area.cpp
+    plot_axis.cpp
+    plot_util.cpp
 )
 
 # TEST #

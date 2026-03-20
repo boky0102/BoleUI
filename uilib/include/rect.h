@@ -3,28 +3,23 @@
 #include "types.h"
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <cmath>
-#include <cstdint>
 namespace Components {
 
 struct Size {
-    uint32_t width;
-    uint32_t height;
+    float width;
+    float height;
 };
 
 struct Border {
-    uint32_t radius;
-};
-
-struct Pos {
-    uint32_t left;
-    uint32_t top;
+    float radius;
+    float width;
 };
 
 class Rect {
   public:
     Rect(Size size, Border border, Pos pos);
 
-    auto GetUnderlayingShape() const -> sf::ConvexShape;
+    auto GetUnderlayingShape() -> sf::ConvexShape*;
     auto GetPositions() const -> std::vector<Pos>;
 
   private:
@@ -36,8 +31,7 @@ class Rect {
     Pos m_pos;
 };
 
-inline auto GetCircleXPos(const int32_t x, const Components::Pos& circleCenter,
-                          CircleSide circleSide, const int32_t radius) -> Components::Pos
+inline auto GetCircleXPos(const float x, const Pos& circleCenter, CircleSide circleSide, const float radius) -> Pos
 {
     const auto h = circleCenter.left;
     const auto k = circleCenter.top;
@@ -45,13 +39,13 @@ inline auto GetCircleXPos(const int32_t x, const Components::Pos& circleCenter,
 
     const int xh = x - h;
     const int part = std::pow(xh, 2);
-    const auto base = std::sqrt(r2 - part);
+    const auto base = static_cast<float>(std::sqrt(r2 - part));
 
     if (circleSide == CircleSide::Top) {
-        return {static_cast<uint32_t>(x), static_cast<uint32_t>(k + base)};
+        return {x, k + base};
     }
 
-    return {static_cast<uint32_t>(x), static_cast<uint32_t>(k - base)};
+    return {x, k - base};
 }
 
 } // namespace Components

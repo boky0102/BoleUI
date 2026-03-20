@@ -34,9 +34,10 @@ struct Color {
 
 // clang-format off
 struct Properties {
-    uint16_t            width = 0;
-    uint16_t            height = 0;
-    uint8_t             border_width = 0;
+    float               width = 0;
+    float               height = 0;
+    float               border_radius_px = 0;
+    float               border_width = 0;
     bool                border = false;
     bool                hidden = false;
     LayoutDirection     layout_children = LayoutDirection::Horizontal;
@@ -48,7 +49,7 @@ struct Properties {
 // TO ADD: background color,  border, etc ...
 class UiElement {
   public:
-    explicit UiElement(std::string name, ElemType isText);
+    explicit UiElement(const std::string& name, ElemType isText);
 
     ~UiElement() {}
 
@@ -86,8 +87,7 @@ class UiElement {
     // travese the whole tree with calling element being a root
     // first goes into breadth then depth from left to right
     // if no children are found returns an empty vector
-    auto GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBuffer)
-        -> std::vector<UiElement*>;
+    auto GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBuffer) -> std::vector<UiElement*>;
 
     // Returns true if element has a child with a name
     bool HasChild(std::vector<UiElement*>& traversalBuffer, const std::string name);

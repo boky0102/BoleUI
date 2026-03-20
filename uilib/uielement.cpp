@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-UiElement::UiElement(std::string name, ElemType elementType)
+UiElement::UiElement(const std::string& name, ElemType elementType)
     : m_name(name)
     , m_elementType(elementType)
     , m_parent(nullptr)
@@ -18,11 +18,20 @@ UiElement::UiElement(std::string name, ElemType elementType)
     m_children.reserve(MAX_CHILDREN);
 };
 
-auto UiElement::GetName() const -> const std::string& { return m_name; }
+auto UiElement::GetName() const -> const std::string&
+{
+    return m_name;
+}
 
-void UiElement::SetParent(UiElement* parent) { m_parent = parent; }
+void UiElement::SetParent(UiElement* parent)
+{
+    m_parent = parent;
+}
 
-auto UiElement::GetParent() -> UiElement* { return m_parent; }
+auto UiElement::GetParent() -> UiElement*
+{
+    return m_parent;
+}
 
 void UiElement::AddChild(std::unique_ptr<UiElement> child)
 {
@@ -39,23 +48,19 @@ auto UiElement::GetAllChildren() const -> std::vector<UiElement*>
         return std::vector<UiElement*>{};
     }
 
-    auto transformed =
-        m_children | std::views::transform([](const auto& child) { return child.get(); });
+    auto transformed = m_children | std::views::transform([](const auto& child) { return child.get(); });
     return std::vector(transformed.begin(), transformed.end());
 }
 
-auto UiElement::GetAllDescendants(std::vector<UiElement*>& traversalBuffer)
-    -> std::vector<UiElement*>
+auto UiElement::GetAllDescendants(std::vector<UiElement*>& traversalBuffer) -> std::vector<UiElement*>
 {
     if (m_children.size() == size_t(0)) {
         return std::vector<UiElement*>{};
     }
 
-    if (traversalBuffer.size() > MAX_ALL_CHILDREN ||
-        traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
-        throw std::runtime_error(
-            std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
-                        MAX_ALL_CHILDREN, traversalBuffer.capacity()));
+    if (traversalBuffer.size() > MAX_ALL_CHILDREN || traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
+        throw std::runtime_error(std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
+                                             MAX_ALL_CHILDREN, traversalBuffer.capacity()));
     }
 
     assert(traversalBuffer.capacity() == MAX_ALL_CHILDREN);
@@ -77,8 +82,7 @@ auto UiElement::GetAllDescendants(std::vector<UiElement*>& traversalBuffer)
     return elements;
 }
 
-auto UiElement::GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBuffer)
-    -> std::vector<UiElement*>
+auto UiElement::GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBuffer) -> std::vector<UiElement*>
 {
     if (m_children.size() == size_t(0)) {
         return std::vector<UiElement*>{this};
@@ -105,11 +109,9 @@ auto UiElement::GetAllDescendantsBreathFirst(std::queue<UiElement*>& traversalBu
 
 bool UiElement::HasChild(std::vector<UiElement*>& traversalBuffer, const std::string childName)
 {
-    if (traversalBuffer.size() > MAX_ALL_CHILDREN ||
-        traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
-        throw std::runtime_error(
-            std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
-                        MAX_ALL_CHILDREN, traversalBuffer.capacity()));
+    if (traversalBuffer.size() > MAX_ALL_CHILDREN || traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
+        throw std::runtime_error(std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
+                                             MAX_ALL_CHILDREN, traversalBuffer.capacity()));
     }
 
     assert(traversalBuffer.capacity() == MAX_ALL_CHILDREN);
@@ -133,14 +135,11 @@ bool UiElement::HasChild(std::vector<UiElement*>& traversalBuffer, const std::st
     return false;
 }
 
-auto UiElement::GetChild(std::vector<UiElement*>& traversalBuffer, const std::string name)
-    -> UiElement*
+auto UiElement::GetChild(std::vector<UiElement*>& traversalBuffer, const std::string name) -> UiElement*
 {
-    if (traversalBuffer.size() > MAX_ALL_CHILDREN ||
-        traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
-        throw std::runtime_error(
-            std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
-                        MAX_ALL_CHILDREN, traversalBuffer.capacity()));
+    if (traversalBuffer.size() > MAX_ALL_CHILDREN || traversalBuffer.capacity() != MAX_ALL_CHILDREN) {
+        throw std::runtime_error(std::format("Ui tree traversal buffer - too big allocation, max - {}, real - {}",
+                                             MAX_ALL_CHILDREN, traversalBuffer.capacity()));
     }
 
     traversalBuffer.clear();
@@ -162,9 +161,15 @@ auto UiElement::GetChild(std::vector<UiElement*>& traversalBuffer, const std::st
     return nullptr;
 }
 
-bool UiElement::IsText() { return m_elementType == ElemType::Text; }
+bool UiElement::IsText()
+{
+    return m_elementType == ElemType::Text;
+}
 
-auto UiElement::GetElementType() -> ElemType { return m_elementType; }
+auto UiElement::GetElementType() -> ElemType
+{
+    return m_elementType;
+}
 
 bool UiElement::RemoveChild(std::vector<UiElement*>& traversalBuffer, const std::string& childName)
 {
@@ -180,12 +185,14 @@ bool UiElement::RemoveChild(std::vector<UiElement*>& traversalBuffer, const std:
 
 bool UiElement::RemoveImmediateChild(const std::string& childName)
 {
-    return std::erase_if(m_children, [childName](std::unique_ptr<UiElement>& child) {
-        return child->GetName() == childName;
-    });
+    return std::erase_if(m_children,
+                         [childName](std::unique_ptr<UiElement>& child) { return child->GetName() == childName; });
 }
 
-void UiElement::RemoveImmediateChildren() { m_children.clear(); }
+void UiElement::RemoveImmediateChildren()
+{
+    m_children.clear();
+}
 
 void UiElement::RearrangeChildren()
 {

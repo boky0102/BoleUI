@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "rect.h"
 #include "types.h"
 #include "uielement.h"
 #include <SFML/Graphics/Color.hpp>
@@ -25,42 +26,28 @@ auto Renderer::GetDrawables(UiTree* root) -> std::vector<std::pair<std::string, 
     }
 
     return newRenderTree;
-
-    // for (const auto& elem : uiElements) {
-    //     auto it = std::find_if(m_drawables.begin(), m_drawables.end(),
-    //                            [elem](const auto& p) { return p.first == elem->GetName(); });
-
-    //     if (it != m_drawables.end()) {
-    //         auto& [name, drawable] = *it;
-    //         SyncProperties(elem, drawable);
-    //         newRenderTree.push_back(*it);
-    //     }
-
-    //     // not found create new element
-    //     if (it == m_drawables.end()) {
-    //         const auto& newDtawable = CreateNewDrawable(elem);
-    //         newRenderTree.emplace_back(std::move(newDtawable));
-    //     }
-    // }
-
-    // assert(newRenderTree.size() != 0);
-
-    // m_drawables = newRenderTree;
 }
 
 auto Renderer::CreateNewDrawable(UiElement* element) -> std::pair<std::string, sf::Drawable*>
 {
     switch (element->GetElementType()) {
     case ElemType::Box: {
-        auto newElem = std::make_unique<sf::RectangleShape>(
-            sf::Vector2f{float(element->properties.width), float(element->properties.height)});
+
+        const auto elementSize = Components::Size{element->properties.width, element->properties.height};
+        const auto elementborder =
+            Components::Border{element->properties.border_radius_px, element->properties.border_width};
+        const auto elementPositon = Pos{element->properties.position.x, element->properties.position.y};
+
+        auto newElem = std::make_unique<Components::Rect>(elementSize, elementborder, elementPositon);
         const auto& elementColors = element->properties.color;
-        newElem->setFillColor(
+        newElem->GetUnderlayingShape()->setFillColor(
             {elementColors.red, elementColors.green, elementColors.blue, elementColors.alpha});
-        newElem->setPosition({element->properties.position.x, element->properties.position.y});
+
+        newElem->GetUnderlayingShape()->setPosition({element->properties.position.x, element->properties.position.y});
+
         m_rectangles.emplace_back(std::move(newElem));
 
-        return {element->GetName(), m_rectangles.back().get()};
+        return {element->GetName(), m_rectangles.back()->GetUnderlayingShape()};
 
         break;
     }

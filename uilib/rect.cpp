@@ -1,7 +1,5 @@
 #include "rect.h"
 #include <SFML/System/Vector2.hpp>
-#include <cmath>
-#include <cstdint>
 #include <sys/types.h>
 
 namespace Components {
@@ -16,15 +14,14 @@ Rect::Rect(Size size, Border border, Pos pos)
     m_convexShape.setPointCount(positions.size());
     int i = 0;
     for (const auto& pos : positions) {
-        m_convexShape.setPoint(
-            i, sf::Vector2f{static_cast<float>(pos.left), static_cast<float>(pos.top)});
+        m_convexShape.setPoint(i, sf::Vector2f{static_cast<float>(pos.left), static_cast<float>(pos.top)});
         i++;
     }
 }
 
-auto Rect::GetUnderlayingShape() const -> sf::ConvexShape
+auto Rect::GetUnderlayingShape() -> sf::ConvexShape*
 {
-    return m_convexShape;
+    return &m_convexShape;
 }
 
 auto Rect::CalculatePoints() const -> std::vector<Pos>
@@ -45,8 +42,8 @@ auto Rect::CalculatePoints() const -> std::vector<Pos>
 
     currentPos = positions.back();
     for (int x = currentPos.left; x < currentPos.left + boderRadius; x++) {
-        const auto circleY = GetCircleXPos(x, {currentPos.left, currentPos.top + boderRadius},
-                                           CircleSide::Bottom, boderRadius);
+        const auto circleY =
+            GetCircleXPos(x, {currentPos.left, currentPos.top + boderRadius}, CircleSide::Bottom, boderRadius);
         positions.push_back(circleY);
     }
 
@@ -55,8 +52,8 @@ auto Rect::CalculatePoints() const -> std::vector<Pos>
 
     currentPos = positions.back();
     for (int x = currentPos.left; x > currentPos.left - boderRadius; x--) {
-        const auto circleY = GetCircleXPos(x, {currentPos.left - boderRadius, currentPos.top},
-                                           CircleSide::Top, boderRadius);
+        const auto circleY =
+            GetCircleXPos(x, {currentPos.left - boderRadius, currentPos.top}, CircleSide::Top, boderRadius);
         positions.push_back(circleY);
     }
 
@@ -65,8 +62,8 @@ auto Rect::CalculatePoints() const -> std::vector<Pos>
 
     currentPos = positions.back();
     for (int x = currentPos.left; x > currentPos.left - boderRadius; x--) {
-        const auto circleY = GetCircleXPos(x, {currentPos.left, currentPos.top - boderRadius},
-                                           CircleSide::Top, boderRadius);
+        const auto circleY =
+            GetCircleXPos(x, {currentPos.left, currentPos.top - boderRadius}, CircleSide::Top, boderRadius);
         positions.push_back(circleY);
     }
 
@@ -75,8 +72,8 @@ auto Rect::CalculatePoints() const -> std::vector<Pos>
 
     currentPos = positions.back();
     for (int x = currentPos.left; x < currentPos.left + boderRadius; x++) {
-        const auto circleY = GetCircleXPos(x, {currentPos.left + boderRadius, currentPos.top},
-                                           CircleSide::Bottom, boderRadius);
+        const auto circleY =
+            GetCircleXPos(x, {currentPos.left + boderRadius, currentPos.top}, CircleSide::Bottom, boderRadius);
         positions.push_back(circleY);
     }
 

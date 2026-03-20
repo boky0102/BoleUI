@@ -8,10 +8,11 @@
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/Graphics/Text.hpp"
 
+#include "rect.h"
 #include "uielement.h"
 #include "uitree.h"
 
-// This class is responsible for storing sfml object representations of ui tree,
+// This class is responsible for storing (owning) sfml object representations of ui tree,
 // efficiently rendering, removing and adding parts of the tree
 // main purpose is to be the translation layer from ui element to the
 // rendering framework.
@@ -19,7 +20,8 @@
 // For example, data for bounding boxes is still kept separately in ui element, but
 // here it is translated to the rendering libraries values, in this case sfml
 // in the future it would be nice to make changing rendering libraries very
-// easy by only providing transformation methods for necessary elements
+// easy by only providing transformation methods for necessary elementsć
+// by extending IRenderer for example
 
 class Renderer {
 
@@ -43,6 +45,6 @@ class Renderer {
 
     // Owned ui elements which should not be re-allocated on each
     // render pass
-    std::vector<std::unique_ptr<sf::RectangleShape>> m_rectangles;
+    std::vector<std::unique_ptr<Components::Rect>> m_rectangles;
     std::vector<std::unique_ptr<sf::Text>> m_textElements;
 };

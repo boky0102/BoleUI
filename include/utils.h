@@ -1,4 +1,5 @@
 #include "SFML/Graphics/Color.hpp"
+#include "uielement.h"
 #include <cstdint>
 #include <random>
 #include <utility>
@@ -20,4 +21,13 @@ static auto GetRandomColor() -> sf::Color
     const auto blue = std::uint8_t(GetRandomNumber({0, 255}));
 
     return sf::Color(red, green, blue);
+}
+
+static auto GetRandomLocalColor() -> Color
+{
+    const auto red = std::uint8_t(GetRandomNumber({0, 255}));
+    const auto green = std::uint8_t(GetRandomNumber({0, 255}));
+    const auto blue = std::uint8_t(GetRandomNumber({0, 255}));
+
+    return {red, green, blue};
 }
